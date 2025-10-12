@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 using namespace std;
 
 //using for lambda trap in recursive
@@ -131,12 +132,49 @@ void POJ2251(){
     }
 }
 
+void POJ3278(){
+    typedef pair<int, int> PII;
+    const int N = 1e5 + 10;
+    int visit[N], n, k;
+    auto bfs = [&]() {
+        queue<PII> q;
+        q.push(make_pair(n, 0));
+        visit[n] = 1;
+        while(!q.empty()) {
+            PII temp = q.front();
+            q.pop();
+            if(temp.first == k) {
+                printf("%d\n", temp.second);
+                break;
+            }
+            if(temp.first - 1 >= 0 && !visit[temp.first - 1]) {//坐标减一
+                visit[temp.first - 1] = 1;
+                q.push(make_pair(temp.first - 1, temp.second + 1));
+            }
+            if(temp.first  + 1 <= N && !visit[temp.first + 1]) {//坐标加一
+                visit[temp.first + 1] = 1;
+                q.push(make_pair(temp.first + 1, temp.second + 1));
+            }
+            if(temp.first * 2 <= N && !visit[temp.first * 2]) {//坐标乘二
+                visit[temp.first * 2] = 1;
+                q.push(make_pair(temp.first * 2, temp.second + 1));
+            }
+        }
+    };
+
+    while(cin >> n >> k) {
+        memset(visit, 0, sizeof visit);
+        bfs();
+    }
+}
+
 int main(){
 #if 0
     POJ1321();
+    POJ2251();
 #endif
     // POJ1321();
-    POJ2251();
-
+    // POJ2251();
+    POJ3278();
     return 0;
 }
