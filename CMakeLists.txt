@@ -4,4 +4,5 @@ project(algorithm)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
+add_subdirectory(test-lab)
 add_subdirectory(chapter1)
