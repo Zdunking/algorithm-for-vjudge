@@ -168,13 +168,101 @@ void POJ3278(){
     }
 }
 
+void POJ3279(){//注意细节啊
+    const int MAX_N = 15;
+    const int MAX_M = 15;
+
+    int n, m;
+    int grid[MAX_N][MAX_M];  // 原始网格
+    int flip[MAX_N][MAX_M];  // 当前翻转方案
+    int best_flip[MAX_N][MAX_M];  // 最优翻转方案
+    int min_flips = INT_MAX;  // 最少翻转次数
+
+    auto get_color = [&](int x, int y, int current_flip[MAX_N][MAX_M]){
+        int color = grid[x][y];
+        // 加上自身和上下左右的翻转次数
+        color += current_flip[x][y];
+        if (x > 0) color += current_flip[x-1][y];
+        if (x < n-1) color += current_flip[x+1][y];
+        if (y > 0) color += current_flip[x][y-1];
+        if (y < m-1) color += current_flip[x][y+1];
+        return color % 2;  // 奇数次翻转改变状态，偶数次不变
+    };
+
+    auto fliptitle = [&](){
+        //通过第一行的所有可能翻转状态（2^m种）去枚举，因为第一行没有依据，只能通过下一行去修正
+        //变量state是一个二进制数，用于表示第一行的翻转方案。例如，当m=3时，state=5（二进制101）表示第一行第 0 列和第 2 列需要翻转。
+        for (int state = 0; state < (1 << m); state++) {
+            memset(flip, 0, sizeof(flip));
+            int total = 0;
+
+            // 根据state设置第一行的翻转方案
+            for (int j = 0; j < m; j++) {
+                if (state & (1 << j)) {
+                    flip[0][j] = 1;
+                    total++;
+                }
+            }
+
+            // 处理第1行到第n-2行，确定每行的翻转方案
+            for (int i = 0; i < n-1; i++) {
+                for (int j = 0; j < m; j++) {
+                    // 如果当前位置的颜色是1，需要翻转下一行对应位置来修正
+                    if (get_color(i, j, flip) == 1) {
+                        flip[i+1][j] = 1;
+                        total++;
+                    }
+                }
+            }
+
+            // 检查最后一行是否全为0
+            bool valid = true;
+            for (int j = 0; j < m; j++) {
+                if (get_color(n-1, j, flip) == 1) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            // 如果有效且翻转次数更少，更新最优解
+            if (valid && total < min_flips) {
+                min_flips = total;
+                memcpy(best_flip, flip, sizeof(flip));
+            }
+        }
+
+        // 输出结果
+        if (min_flips == INT_MAX) {
+            cout << "IMPOSSIBLE" << endl;
+        } else {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < m; j++) {
+                    if (j > 0) cout << " ";
+                    cout << best_flip[i][j];
+                }
+                cout << endl;
+            }
+        }
+    };
+
+    cin >> n >> m;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
+    }
+    fliptitle();
+}
+
 int main(){
 #if 0
     POJ1321();
     POJ2251();
+    POJ3278();
 #endif
     // POJ1321();
     // POJ2251();
-    POJ3278();
+    // POJ3278();
+    POJ3279();
     return 0;
 }
