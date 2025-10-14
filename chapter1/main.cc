@@ -254,15 +254,43 @@ void POJ3279(){//注意细节啊
     fliptitle();
 }
 
+
+void POJ1426(){
+    auto bfs = [](int n){
+        queue<int64_t> q;//数值类型为long long类型
+        q.push(1);
+        while (!q.empty())
+        {
+            int64_t ls = q.front();
+            if(ls%n!=0){ //不是n的倍数将两个子数入队
+                q.push(ls*10);
+                q.push(ls*10+1);
+            } else {
+                cout<<ls<<endl;
+                return;
+            }
+            q.pop();
+        }
+    };
+
+    int64_t n;
+    while (cin>>n) {
+        if(n==0)break;
+        bfs(n);
+    }
+}
+
 int main(){
 #if 0
     POJ1321();
     POJ2251();
     POJ3278();
+    POJ3279();
 #endif
     // POJ1321();
     // POJ2251();
     // POJ3278();
-    POJ3279();
+    // POJ3279();
+    POJ1426();
     return 0;
 }
