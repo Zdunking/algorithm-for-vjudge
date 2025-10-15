@@ -280,17 +280,76 @@ void POJ1426(){
     }
 }
 
+void POJ3126(){
+    //说白了，栈空间不一定能过去
+    int f[10001];
+    int v[10001];
+    auto init = [&](){
+        //把所有不是素数的置为1
+        memset(f,0,sizeof f);
+	    for(int i=2;i<=10000;i++) {
+	    	if(f[i]==0) {
+	    		for(int j = i+i;j<=10000;j+=i) {
+	    			f[j] = 1;
+	    		}
+	    	}
+	    }
+    };
+
+    //input
+    int a,b;
+    auto bfs = [&]() {
+    	memset(v,0,sizeof v);
+        //a入队列
+    	queue<int> q;
+    	q.push(a);
+    	v[a] = 1;
+    	int tmp;
+    	while(!q.empty())
+    	{
+    		tmp = q.front();
+            q.pop();
+    		if(tmp==b)return v[tmp];
+    		int now;
+    		int t = v[tmp]+1;
+    		for(int i=0;i<=9;i++)//循环改变的数字 0 ~ 9
+    		{
+    			now = tmp - tmp%10+i;//尝试个位0-9
+    			if(now>=1000&&f[now]==0&&v[now] == 0){v[now] = t;q.push(now);}
+    			now = tmp/100*100+i*10+tmp%10;//尝试十位0-9
+    			if(now>=1000&&f[now]==0&&v[now] == 0){v[now] = t;q.push(now);}
+    			now = tmp/1000*1000+i*100+tmp%100;//改变百位
+    			if(now>=1000&&f[now]==0&&v[now] == 0){v[now] = t;q.push(now);}
+    			now = i*1000+tmp%1000;//改变千位
+    			if(now>=1000&&f[now]==0&&v[now] == 0){v[now] = t;q.push(now);}
+    		}
+    	}
+    };
+
+    init(); 
+    int count;
+    cin>>count;
+    while(count--) {
+    	cin>>a>>b;
+    	int ans = bfs();
+    	cout<<ans-1<<endl;
+    }
+
+}
+
 int main(){
 #if 0
     POJ1321();
     POJ2251();
     POJ3278();
     POJ3279();
+    POJ1426();
 #endif
     // POJ1321();
     // POJ2251();
     // POJ3278();
     // POJ3279();
-    POJ1426();
+    // POJ1426();
+    POJ3126();
     return 0;
 }
