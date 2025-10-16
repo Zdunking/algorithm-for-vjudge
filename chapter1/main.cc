@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <map>
 using namespace std;
 
 //using for lambda trap in recursive
@@ -337,6 +338,66 @@ void POJ3126(){
 
 }
 
+
+void POJ3087(){
+    string s1,s2,s12;
+    int C;
+    int N,flag=1;
+    struct Node{
+        string cur;
+        int step;
+    };
+
+    auto shuffle = [&](string &s1,string &s2){
+        string now;
+        for(int i=0;i<C;i++){
+            now+=s2[i];
+            now+=s1[i];
+        }
+        return now;
+    };
+
+    auto BFS = [&](string s1,string s2,string s12){
+        map<string,bool>vis;     //来标记出现过的情况
+        queue<Node> q;
+        Node now,next;
+        now.step=1;
+        now.cur=shuffle(s1,s2);
+        vis[now.cur]=true;
+        q.push(now);
+        while(!q.empty()){
+            now=q.front();
+            q.pop();
+            if(now.cur==s12){
+                std::cout << now.step << std::endl;
+                return;
+            }
+            s1.clear();s2.clear();   //开始没清空
+            for(int i=0;i<C;i++)
+                s1+=now.cur[i];
+            for(int i=C;i<2*C;i++)
+                s2+=now.cur[i];
+            next.cur=shuffle(s1,s2);
+            if(!vis[next.cur]){
+                next.step=now.step+1;
+                vis[next.cur]=true;
+                q.push(next);
+            }
+        }
+        std::cout << "-1\n";
+    };
+    
+    
+    std::cin >> N;
+    while(N--){
+        cin>>C;
+        cin>>s1>>s2>>s12;
+        std::cout << flag;
+        flag++;
+        BFS(s1,s2,s12);
+    }
+}
+
 int main(){
 #if 0
     POJ1321();
@@ -344,12 +405,14 @@ int main(){
     POJ3278();
     POJ3279();
     POJ1426();
+    POJ3126();
 #endif
     // POJ1321();
     // POJ2251();
     // POJ3278();
     // POJ3279();
     // POJ1426();
-    POJ3126();
+    // POJ3126();
+    POJ3087();
     return 0;
 }
