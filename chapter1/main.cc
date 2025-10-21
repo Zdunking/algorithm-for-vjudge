@@ -398,6 +398,63 @@ void POJ3087(){
     }
 }
 
+void POJ3414(){
+    const int N = 110;
+    const string op[6] = {"FILL(1)", "FILL(2)", "DROP(1)", "DROP(2)", "POUR(1,2)", "POUR(2,1)"};
+    int a, b, c, visit[N][N];// 标记状态(a,b)是否已访问过
+    struct state {
+        int a, b;
+        string op;
+        state(int x, int y, string z) : a(x), b(y), op(z) {}
+    };
+
+    auto bfs = [&](){
+        queue<state> q;
+        memset(visit, 0, sizeof visit);
+        visit[0][0] = 1;
+        q.push(state(0, 0, ""));// 初始状态入队：两个水壶都是空的，无操作
+        while(!q.empty()) {
+            state temp = q.front();
+            q.pop();
+            // cout << temp.a << " " << temp.b << endl;
+            if(temp.a == c || temp.b == c) {
+                int n = temp.op.size(); 
+                cout << n << endl;
+                for(int i = 0; i < n; i++)
+                    cout << op[temp.op[i] - '0'] << endl;
+                return ;
+            }
+            //装满水壶 1（FILL (1)）
+            if(temp.a != a && !visit[a][temp.b]++)  q.push(state(a, temp.b, temp.op + '0'));
+            //装满水壶 2（FILL (2)）
+            if(temp.b != b && !visit[temp.a][b]++)  q.push(state(temp.a, b, temp.op + '1'));
+            //清空水壶 1（DROP (1)）
+            if(temp.a != 0 && !visit[0][temp.b]++)  q.push(state(0, temp.b, temp.op + '2'));
+            //清空水壶 2（DROP (2)）
+            if(temp.b != 0 && !visit[temp.a][0]++)  q.push(state(temp.a, 0, temp.op + '3'));
+            //从水壶 1 倒入水壶 2（POUR (1,2)）
+            if(temp.a != 0) {
+                int add = min(temp.a, b - temp.b);
+                if(!visit[temp.a - add][temp.b + add]++)
+                    q.push(state(temp.a - add, temp.b + add, temp.op + '4'));
+            }
+            //从水壶 2 倒入水壶 1（POUR (2,1)）
+            if(temp.b != 0) {
+                int add = min(a - temp.a, temp.b);
+                // cout << temp.a + add << " " << temp.b - add << endl;
+                if(!visit[temp.a + add][temp.b -add]++)
+                    q.push(state(temp.a + add, temp.b - add, temp.op + '5'));
+            }
+        }
+        cout << "impossible" << endl;
+    };
+
+    while(cin >> a >> b >> c) {
+        bfs();
+    }
+
+}
+
 int main(){
 #if 0
     POJ1321();
@@ -406,6 +463,7 @@ int main(){
     POJ3279();
     POJ1426();
     POJ3126();
+    POJ3087();
 #endif
     // POJ1321();
     // POJ2251();
@@ -413,6 +471,7 @@ int main(){
     // POJ3279();
     // POJ1426();
     // POJ3126();
-    POJ3087();
+    // POJ3087();
+    POJ3414();
     return 0;
 }
