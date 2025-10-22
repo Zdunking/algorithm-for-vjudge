@@ -455,6 +455,52 @@ void POJ3414(){
 
 }
 
+/*
+无来源，暂搁置
+FZU-2150    Fire Game
+UVA-11624   Fire!
+POJ-3984    迷宫问题 POJ系统没搜到😮
+*/
+
+void HDU1241(){
+    #define N 110
+
+    char Map[N][N];
+    int n, m, dir[8][2]={{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
+
+    auto dfs = recursive_lambda([&](auto const& self,int x, int y) ->void{
+        if(Map[x][y]=='*')
+            return ;
+        if(x<0 || x>=n || y<0 || y>=m)
+            return ;
+
+        Map[x][y] = '*';
+
+        for(int i=0; i<8; i++)
+            self(self, x+dir[i][0], y+dir[i][1]);
+    });
+
+    while(cin >> n>>m)
+    {
+        if(m ==0) break;
+        int i, j, sum=0;
+        for(i=0; i<n; i++)
+            cin >> Map[i];
+        for(i=0; i<n; i++){
+            for(j=0; j<m; j++)
+            {
+                if(Map[i][j]=='@')
+                {
+                    dfs(i, j);
+                    sum ++;
+                }
+            }
+        }
+        std::cout << sum << std::endl;
+    }
+
+}
+
 int main(){
 #if 0
     POJ1321();
@@ -464,14 +510,8 @@ int main(){
     POJ1426();
     POJ3126();
     POJ3087();
-#endif
-    // POJ1321();
-    // POJ2251();
-    // POJ3278();
-    // POJ3279();
-    // POJ1426();
-    // POJ3126();
-    // POJ3087();
     POJ3414();
+#endif
+    HDU1241();
     return 0;
 }
