@@ -501,6 +501,86 @@ void HDU1241(){
 
 }
 
+void HDU1495(){
+    struct state{
+        int s, n, m, step;
+        state(int a, int b, int c, int d): s(a), n(b), m(c), step(d) {}
+    };
+
+    int s,n,m;
+    vector<vector<vector<int>>> visit(101,vector<vector<int>>(101,vector<int>(101)));
+
+    auto bfs = [&]()->int{
+        int ans = -1;
+        int flag = 0;
+        queue<state> q;
+        visit[s][n][m] = 1;
+        q.push(state(s, 0, 0, 0));
+        while(!q.empty()) {
+            state temp = q.front();
+            q.pop();
+            flag = 0;
+            if(temp.s == s / 2) flag++;
+            if(temp.n == s / 2) flag++;
+            if(temp.m == s / 2) flag ++;
+            if(flag == 2) {
+                ans = temp.step;
+                break;
+            }
+
+            // bfs 广搜，某种状态出发的可能被队列吸收了，后面每一个可能会弹出队列进行回溯广搜
+            if(temp.s) {//从可乐瓶向第n / 第m容器倒水
+                if(temp.n != n) {
+                    int add = min(n - temp.n, temp.s);
+                    if(!visit[temp.s - add][temp.n + add][temp.m]++)
+                        q.push(state(temp.s - add, temp.n + add, temp.m, temp.step + 1));
+                }
+                if(temp.m != m) {
+                    int add = min(m - temp.m, temp.s);
+                    if(!visit[temp.s - add][temp.n][temp.m + add]++)
+                        q.push(state(temp.s - add, temp.n, temp.m + add, temp.step + 1));
+                }
+            }
+            if(temp.n) {//从n容器向可乐瓶/ m容器倒水
+                if(temp.s != s) {
+                    int add = min(s - temp.s, temp.n);
+                    if(!visit[temp.s + add][temp.n - add][temp.m]++)
+                        q.push(state(temp.s + add, temp.n -add, temp.m, temp.step + 1));
+                }
+                if(temp.m != m) {
+                    int add = min(m - temp.m, temp.n);
+                    if(!visit[temp.s][temp.n - add][temp.m + add]++)
+                        q.push(state(temp.s, temp.n - add, temp.m + add, temp.step + 1));
+                }
+            }
+            if(temp.m) {//从m容器向可乐瓶 / n容器倒水
+                if(s != temp.s) {
+                    int add = min(s - temp.s, temp.m);
+                    if(!visit[temp.s + add][temp.n][temp.m - add]++)
+                        q.push(state(temp.s + add, temp.n, temp.m - add, temp.step + 1));
+                }
+                if(n != temp.n) {
+                    int add = min(n - temp.n, temp.m);
+                    if(!visit[temp.s][temp.n + add][temp.m - add]++)
+                        q.push(state(temp.s, temp.n + add, temp.m -add, temp.step + 1));
+                }
+            }
+        }
+        return ans;
+    };
+
+    while(std::cin >> s >> n >> m) {
+        if(s == 0 && n == 0 && m == 0) break;
+        if(s % 2) {
+            cout << "NO\n";
+            continue;
+        }
+        int ans=bfs();
+        if(ans==-1) cout << "NO\n";
+        else std::cout << ans << std::endl;
+    }
+}
+
 int main(){
 #if 0
     POJ1321();
@@ -512,6 +592,7 @@ int main(){
     POJ3087();
     POJ3414();
 #endif
-    HDU1241();
+    // HDU1241();
+    HDU1495();
     return 0;
 }
