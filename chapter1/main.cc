@@ -581,6 +581,81 @@ void HDU1495(){
     }
 }
 
+void HDU2612(){
+    struct point {
+        int x,y,step;
+        point(int a,int b,int c): x(a), y(b),step(c) {}
+    };
+
+    const int maxn = 210;
+    const int ax[4] = {1,0,0,-1};
+    const int ay[4] = {0,1,-1,0};
+    char maze[maxn][maxn];
+    int visity[maxn][maxn], visitm[maxn][maxn],ans[maxn][maxn],n,m;
+
+    auto bfsy = [&](int x,int y) {
+        queue<point>a;
+        a.push(point(x, y, 0));
+        visity[x][y] = 1;
+        while(!a.empty()) {
+            point temp = a.front();
+            a.pop();
+            if(maze[temp.x][temp.y] == '@')
+                ans[temp.x][temp.y] = temp.step;
+            for(int i = 0; i < 4; i++) {
+                int tempx = temp.x + ax[i];
+                int tempy = temp.y + ay[i];
+                if(!visity[tempx][tempy] && maze[tempx][tempy] != '#' && tempx >=0 && tempx < n && tempy >= 0 && tempy < m) {
+                    visity[tempx][tempy] = 1;
+                    a.push(point(tempx,tempy,temp.step + 1));
+                }
+            }
+        }
+    };
+
+    auto bfsm = [&](int x,int y) {
+        queue<point>a;
+        a.push(point(x,y,0));
+        visitm[x][y] = 1;
+        while(!a.empty()) {
+            point temp = a.front();
+            a.pop();
+            if(maze[temp.x][temp.y] == '@' && ans[temp.x][temp.y])
+                ans[temp.x][temp.y] += temp.step;
+            for(int i = 0; i < 4; i++) {
+                int tempx = temp.x + ax[i];
+                int tempy = temp.y + ay[i];
+                if(!visitm[tempx][tempy] && maze[tempx][tempy] != '#' && tempx >=0 && tempx < n && tempy >= 0 && tempy < m) {
+                    visitm[tempx][tempy] = 1;
+                    a.push(point(tempx,tempy,temp.step + 1));
+                }
+            }
+        }
+    };
+
+    while(cin >> n >> m) {
+        int xy,yy,xm,ym;
+        memset(visity,0,sizeof(visity));
+        memset(visitm,0,sizeof(visitm));
+        memset(ans,0,sizeof(ans)); 
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < m; j++) {
+                cin >> maze[i][j];
+                if(maze[i][j] == 'Y')   xy = i, yy = j;//yifenfei的位置
+                if(maze[i][j] == 'M')   xm = i, ym = j;//Merceki的位置
+            }
+        bfsy(xy,yy);//yifenfei进BFS
+        bfsm(xm,ym);//Merceki进BFS
+        int sum = std::numeric_limits<int>::max();
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < m; j++)
+                if(ans[i][j])
+                    sum = min(sum,ans[i][j]);
+        cout << sum * 11 <<endl;
+    }
+
+}
+
 int main(){
 #if 0
     POJ1321();
@@ -593,6 +668,7 @@ int main(){
     POJ3414();
 #endif
     // HDU1241();
-    HDU1495();
+    // HDU1495();
+    HDU2612();
     return 0;
 }
