@@ -1,0 +1,1 @@
+add_executable(chapter2 main.cc)
