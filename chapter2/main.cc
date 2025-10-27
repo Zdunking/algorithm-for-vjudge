@@ -110,9 +110,98 @@ void HDU1043(){
     }
 
 }
+
+
+void HDU3567(){
+	// 操作按字典序从小到大排列：d < l < r < u（根据ASCII码）
+	// 这样BFS时优先尝试字典序小的操作，确保找到的最短路径字典序最小
+	vector<pair<char, int>> dirs = {
+	    {'d', 3},   // 下移：X与下方棋子交换（索引+3）
+	    {'l', -1},  // 左移：X与左侧棋子交换（索引-1）
+	    {'r', 1},   // 右移：X与右侧棋子交换（索引+1）
+	    {'u', -3}   // 上移：X与上方棋子交换（索引-3）
+	};
+
+// 检查操作是否合法
+	auto is_valid = [](int pos, char op) {
+	    if (op == 'l') {
+	        return pos % 3 != 0;  // 不在第一列（列索引0）才能左移
+	    } else if (op == 'r') {
+	        return pos % 3 != 2;  // 不在第三列（列索引2）才能右移
+	    } else if (op == 'u') {
+	        return pos / 3 != 0;  // 不在第一行（行索引0）才能上移
+	    } else if (op == 'd') {
+	        return pos / 3 != 2;  // 不在第三行（行索引2）才能下移
+	    }
+	    return false;
+	};
+
+	auto solve = [&](string start, string target)->pair<int, string> {
+	    if (start == target) {
+	        return {0, ""};
+	    }
+
+	    queue<string> q;
+	    unordered_map<string, string> visited;  // 记录状态对应的路径
+
+	    q.push(start);
+	    visited[start] = "";
+
+	    while (!q.empty()) {
+	        string current = q.front();
+	        q.pop();
+	        string path = visited[current];
+
+	        // 找到当前状态中X的位置
+	        int pos = current.find('X');
+
+	        // 按字典序尝试所有可能的操作
+	        for (auto &dir : dirs) {
+	            char op = dir.first;
+	            int delta = dir.second;
+
+	            if (!is_valid(pos, op)) {
+	                continue;  // 跳过不合法操作
+	            }
+
+	            // 生成新状态（交换X和目标位置的字符）
+	            string next_state = current;
+	            swap(next_state[pos], next_state[pos + delta]);
+
+	            // 找到目标状态，返回结果
+	            if (next_state == target) {
+	                return {(int)path.size() + 1, path + op};
+	            }
+
+	            // 新状态未访问过，加入队列并记录路径
+	            if (visited.find(next_state) == visited.end()) {
+	                visited[next_state] = path + op;
+	                q.push(next_state);
+	            }
+	        }
+	    }
+
+	    // 题目保证有解，此处不会执行
+	    return {0, ""};
+	};
+
+
+	int T;
+    cin >> T;
+    for (int t = 1; t <= T; ++t) {
+        string A, B;
+        cin >> A >> B;
+        auto result = solve(A, B);
+        cout << "Case " << t << ": " << result.first << endl;
+        cout << result.second << endl;
+    }
+}
+
+
 int main(){
 #if 0
     
 #endif
-    HDU1043();
+    // HDU1043();
+	HDU3567();
 }
