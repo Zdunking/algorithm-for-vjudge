@@ -4,7 +4,11 @@
 #include <unordered_map>
 using namespace std;
 
-
+auto recursive_lambda = [](auto &&lam) {
+     return [lam_impl = std::forward<decltype(lam)>(lam)](auto &&...args) -> decltype(auto) {
+         return lam_impl(lam_impl, std::forward<decltype(args)>(args)...);
+     };
+ };
 
 void HDU1043(){
 	// 目标状态
@@ -197,11 +201,59 @@ void HDU3567(){
     }
 }
 
+void HDU2181(){
+	int link[21][21];
+	int visit[21];
+	int a[21];
+	int cnt=1;
+
+	auto DFS = recursive_lambda([&](auto const &self, int n,int country,int m)->void {
+	    if(country==19&&link[n][m]==1)
+	    {
+			cout << cnt++ << ": ";
+	        for(int q=0;q<20;q++)
+				cout << " " << a[q];
+	        cout << " " << m << endl;
+	    }
+	    for(int i=1;i<=20;i++)
+	    {
+	        if(visit[i]==0&&link[n][i]==1&&n!=i)
+	        {
+	            visit[i]=1;
+	            a[country+1]=i;
+	            self(self,i,country+1,m);
+	            visit[i]=0;
+	        }
+	    }
+	});
+
+
+	memset(link,0,sizeof(link));
+	//构造多面体
+    for(int i=1;i<=20;i++) {
+        int a,b,c;
+        cin >> a >> b >> c;
+        link[i][a]=link[i][b]=link[i][c]=1;
+    }
+
+    int m=1;
+    while(m!=0)
+    {
+        memset(visit,0,sizeof(visit));
+        cin >>m;
+        if(m==0) break;
+        visit[m]=1;
+        a[0]=m;
+        DFS(m,0,m);
+    }
+} 
+
 
 int main(){
 #if 0
     
 #endif
     // HDU1043();
-	HDU3567();
+	// HDU3567();
+	HDU2181();
 }
