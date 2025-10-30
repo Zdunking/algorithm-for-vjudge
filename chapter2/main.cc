@@ -248,6 +248,169 @@ void HDU2181(){
     }
 } 
 
+void HDU3533(){
+	int n,m,k,life;
+	int dt[5][2] = {0,1,1,0,0,-1,-1,0,0,0};//四个方向与停止不动的走法
+	vector<vector<int>> map(105, vector<int>(105));
+	vector<vector<vector<bool>>> vis(105, vector<vector<bool>>(105, vector<bool>(105)));
+	
+	struct period
+	{
+	    char c;
+	    int t,v;
+	};
+	vector<vector<period>> s(105,vector<period>(105));
+
+	struct node
+	{
+	    int x,y,step;
+	};
+
+	auto check = [&](int x,int y) {
+    	if(x<0 || x>n || y<0 || y>m)
+    	    return 1;
+    	return 0;
+	};
+
+	auto bfs = [&]()
+	{
+	    node now,net;
+	    queue<node> q;
+	    int i,j,flag,dis,timee;
+	    now.x = now.y = now.step = 0;
+	    q.push(now);
+	    vis[0][0][0] = true;
+	    while(!q.empty())
+	    {
+	        now = q.front();
+	        q.pop();
+	        if(now.step>life)
+	            break;
+	        if(now.x == n && now.y == m)
+	        {
+	            cout<<now.step<<endl;
+	            return ;
+	        }
+	        for(i = 0; i<5; i++)
+	        {
+	            net = now;
+	            net.x+=dt[i][0];
+	            net.y+=dt[i][1];
+	            net.step++;
+	            if(check(net.x,net.y))
+	                continue;
+	            if(!s[net.x][net.y].t && !vis[net.x][net.y][net.step] && net.step<=life)//在符合条件的情况下，枚举四个方向
+	            {
+	                flag = 1;
+	                for(j = net.x-1; j>=0; j--)//当位于这点，我们往北向寻找是否有朝南方向射击的炮台
+	                {
+	                    if(s[j][net.y].t && s[j][net.y].c == 'S')//找到第一个炮台，且这个炮台是朝南射击的
+	                    {
+	                        dis = net.x-j;//看炮台与人的距离
+	                        if(dis%s[j][net.y].v)
+	                            break;//因为不需要看子弹中途的点，子弹每一秒跑v，距离是dis，dis不能整除v的话，那么子弹是不可能停在这个点的
+	                        timee = net.step-dis/s[j][net.y].v;//人走的时间减去第一个子弹飞行到这个位置所需的时间
+	                        if(timee<0)
+	                            break;//为负数就是第一个子弹都没有经过这个点，那么人绝对安全
+	                        if(timee%s[j][net.y].t==0)//看间隔，能整除，那么就是后续有子弹刚好到这个点，人死定了
+	                        {
+	                            flag = 0;
+	                            break;
+	                        }
+	                    }
+	                    if(s[j][net.y].t)//找到炮台但不是朝南射击，那么这个炮台会当下后面所有子弹，所以北方向安全我们不需要再找
+	                        break;
+	                }
+	                if(!flag)//这个方向都死定了，后面也就不需要看了
+	                    continue;
+	                //其他方向也是一样的道理，就不注释了
+	                for(j = net.x+1; j<=n; j++)
+	                {
+	                    if(s[j][net.y].t && s[j][net.y].c == 'N')
+	                    {
+	                        dis = j-net.x;
+	                        if(dis%s[j][net.y].v)
+	                            break;
+	                        timee = net.step-dis/s[j][net.y].v;
+	                        if(timee<0)
+	                            break;
+	                        if(timee%s[j][net.y].t==0)
+	                        {
+	                            flag = 0;
+	                            break;
+	                        }
+	                    }
+	                    if(s[j][net.y].t)
+	                        break;
+	                }
+	                if(!flag)
+	                    continue;
+	                for(j = net.y-1; j>=0; j--)
+	                {
+	                    if(s[net.x][j].t && s[net.x][j].c == 'E')
+	                    {
+	                        dis = net.y-j;
+	                        if(dis%s[net.x][j].v)
+	                            break;
+	                        timee = net.step-dis/s[net.x][j].v;
+	                        if(timee<0)
+	                            break;
+	                        if(timee%s[net.x][j].t==0)
+	                        {
+	                            flag = 0;
+	                            break;
+	                        }
+	                    }
+	                    if(s[net.x][j].t)
+	                        break;
+	                }
+	                if(!flag)
+	                    continue;
+	                for(j = net.y+1; j<=m; j++)
+	                {
+	                    if(s[net.x][j].t && s[net.x][j].c == 'W')
+	                    {
+	                        dis = j-net.y;
+	                        if(dis%s[net.x][j].v)
+	                            break;
+	                        timee = net.step-dis/s[net.x][j].v;
+	                        if(timee<0)
+	                            break;
+	                        if(timee%s[net.x][j].t==0)
+	                        {
+	                            flag = 0;
+	                            break;
+	                        }
+	                    }
+	                    if(s[net.x][j].t)
+	                        break;
+	                }
+	                if(!flag)
+	                    continue;
+	                vis[net.x][net.y][net.step] = true;
+	                q.push(net);
+	            }
+	        }
+	    }
+	    cout<<"Bad luck!"<<endl;
+	};
+
+	
+	while(cin>>n>>m>>k>>life)
+    {
+        for(int i=0; i<k; i++)
+        {
+            char c;
+            int t,v,x,y;
+            cin>>c>>t>>v>>x>>y;
+            s[x][y].c=c;
+            s[x][y].t=t;
+            s[x][y].v=v;
+        }
+        bfs();
+    }
+}
+
 
 int main(){
 #if 0
@@ -255,5 +418,6 @@ int main(){
 #endif
     // HDU1043();
 	// HDU3567();
-	HDU2181();
+	// HDU2181();
+	HDU3533();
 }
