@@ -411,6 +411,75 @@ void HDU3533(){
     }
 }
 
+void HDU1560(){
+	int pos[10];//pos[i]  第i个序列正在使用第几个位置
+	int T,n;
+	int deep;//自己构造的DNA序列最小长度
+	char c[10] = "ACGT";
+	struct node
+	{
+	    char ch[10];      //DNA的组成
+	    int len;     //DNA长度
+	};
+	node a[10];//a[i]  第i个DNA序列
+	auto init = [&]() {//预估长度
+	    int ans=0;
+	    for(int i=0;i<n;i++)//总长度-正在使用的位置=剩下还没用的位置 即预计长度
+	        ans=max(ans,a[i].len-pos[i]);
+	    return ans;
+	};
+	auto dfs = recursive_lambda([&](auto const &self, int step) {
+	    if(step+init()>deep)//预计长度+当前长度>构造DNA序列的最小长度
+	        return 0;
+	    if(init()==0)//预计长度为0，即已完成
+	        return 1;
+	    int pre[10];//先将pos保存起来，一会回溯要用
+	    for(int i=0;i<4;i++)
+	    {
+	        int f=0;
+	        for(int j=0;j<n;j++)//保存pos
+	            pre[j]=pos[j];
+	        for(int j=0;j<n;j++)//当前这位符合，则该串的位置往后移一位
+	        {
+	            if(a[j].ch[pos[j]]==c[i])
+	            {
+	                f=1;
+	                pos[j]++;
+	            }
+	        }
+	        if(f)
+	        {
+	            if(self(self, step+1))//有符合的，则往下搜索
+	                return 1;
+	            for(int j=0;j<n;j++)//回溯
+	                pos[j]=pre[j];
+	        }
+	    }
+	    return 0;
+	});
+	
+	cin>>T;
+    while(T--)
+    {
+        deep=0;//自己构造的DNA序列最小长度
+        cin>>n;
+        for(int i=0;i<n;i++)//存值
+        {
+            cin>>a[i].ch;
+            a[i].len=strlen(a[i].ch);
+            deep=max(deep,a[i].len);
+            pos[i]=0;
+        }
+        while(1)
+        {
+            if(dfs(0))
+                break;
+            deep++;
+        }
+        cout<<deep<<endl;
+    }
+}
+
 
 int main(){
 #if 0
@@ -419,5 +488,6 @@ int main(){
     // HDU1043();
 	// HDU3567();
 	// HDU2181();
-	HDU3533();
+	// HDU3533();
+	HDU1560();
 }
