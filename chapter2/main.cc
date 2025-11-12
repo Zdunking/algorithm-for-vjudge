@@ -2,6 +2,9 @@
 #include <queue>
 #include <string>
 #include <unordered_map>
+#include <numeric>
+#include <cstring>
+#include <algorithm>
 using namespace std;
 
 auto recursive_lambda = [](auto &&lam) {
@@ -481,6 +484,110 @@ void HDU1560(){
 }
 
 
+void HDU3085(){
+	const int N = 805;
+	int t, n, m, zx1, zy1, zx2, zy2, mx, my, gx, gy, step; 
+	vector<vector<int>> vis(N, vector<int>(N,0));
+	vector<string> G(N);
+	int dx[4] = {0, 1, 0, -1};
+	int dy[4] = {1, 0, -1, 0};
+	struct node {
+		int x, y;  
+		node(int xx, int yy) {
+			x = xx; y = yy;  ;
+		}
+	};
+	auto ok = [&](int x, int y) {
+		if (x < 0 || y < 0 || x >= n || y >=  m || G[x][y] == 'X') return false;
+		//看能不能被鬼覆盖
+		if (abs(x - zx1) + abs(y - zy1) <= 2 * step) return false;
+		if (abs(x - zx2) + abs(y - zy2) <= 2 * step) return false;
+		
+		return true;
+	};
+	auto bfs = [&](){
+		//标记状态 0表示未访问 1表示男孩 2表示女孩访问 
+		vis[mx][my] = 1; 
+		vis[gx][gy] = 2;
+		step = 0;
+		//初始化时间 
+		queue<node> qm, qg;
+		qm.push(node(mx, my));
+		qg.push(node(gx, gy));
+		while (!qm.empty() && !qg.empty()) {
+			step++;
+			//男孩走3步
+			for (int k = 0; k < 3; k++) {
+				for (int i = 0, len = qm.size(); i < len; i++) {
+					node t = qm.front();
+					qm.pop();
+					//判断一下刚出来的点是否能动
+					if (!ok(t.x, t.y)) continue; 
+					for (int j = 0; j < 4; j++) {
+						int fx = t.x + dx[j];
+						int fy = t.y + dy[j];				
+						if (!ok(fx, fy) ||  vis[fx][fy] == vis[t.x][t.y]) continue;
+						//看该点符合要求否 避免重复走 
+						if (vis[fx][fy] + vis[t.x][t.y] == 3) {
+							//找到答案
+							return step;	 
+						}
+						vis[fx][fy] = vis[t.x][t.y];
+						qm.push(node(fx, fy));	
+					}
+				}
+			} 
+			//女孩走一步 
+			for (int i = 0, len = qg.size(); i < len; i++) {
+				node t = qg.front();
+				qg.pop();
+				if (!ok(t.x, t.y)) continue; 
+				for (int j = 0; j < 4; j++) {
+					int fx = t.x + dx[j];
+					int fy = t.y + dy[j];
+					if (!ok(fx, fy) ||  vis[fx][fy] == vis[t.x][t.y]) continue;
+					if (vis[fx][fy] + vis[t.x][t.y] == 3) {
+						//找到答案
+						return step;	 
+					} 		
+					vis[fx][fy] = vis[t.x][t.y];
+					qg.push(node(fx, fy));		
+				}
+			}
+		}
+		return -1;
+	};
+
+	scanf("%d", &t);
+	while (t--) {
+		vector<vector<int>> vis_temp(N, vector<int>(N,0));
+		vector<string> G_temp(N);
+		vis.swap(vis_temp);
+		G.swap(G_temp);
+		scanf("%d%d", &n, &m);
+		for (int i = 0; i < n; i++) {
+			cin >> G[i];
+		} 
+		//找出男女和鬼的位置 
+		int cnt = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				if (G[i][j] == 'Z') {
+					if (!cnt){
+							zx1 = i; zy1 = j;
+						cnt++;	
+					} else {
+						zx2 = i; zy2= j;
+					} 
+				}
+				if (G[i][j] == 'M') mx = i, my = j;
+				if (G[i][j] == 'G') gx = i, gy = j;
+			}
+		}
+		printf("%d\n", bfs());
+	}
+}
+
 int main(){
 #if 0
     
@@ -489,5 +596,6 @@ int main(){
 	// HDU3567();
 	// HDU2181();
 	// HDU3533();
-	HDU1560();
+	// HDU1560();
+	HDU3085();
 }

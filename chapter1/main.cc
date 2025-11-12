@@ -2,6 +2,9 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <climits>
+#include <cstring>
+#include <numeric>
 using namespace std;
 
 //using for lambda trap in recursive
